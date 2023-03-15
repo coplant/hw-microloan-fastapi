@@ -1,11 +1,11 @@
+from fastapi import UploadFile, File
 from pydantic import BaseModel
 
 
-class PhotoData(BaseModel):
-    filename: str
-    content_type: str
-    file: bytes
-
-
-class Passport(PhotoData):
+class Passport(BaseModel):
     number: str
+    file: UploadFile = File(...)
+
+# class PassportUpload(Passport):
+#     number: str
+#     file: UploadFile = File(...)

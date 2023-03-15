@@ -12,4 +12,4 @@ class Passport(Base):
     content_type = Column(String)
     data = Column(LargeBinary)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
-    user = relationship("User", back_populates="passport")
+    user = relationship("User", back_populates="passport", lazy=False)
