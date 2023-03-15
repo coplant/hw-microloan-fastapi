@@ -37,6 +37,21 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
                 detail=exc.reason,
             )
 
+    @staticmethod
+    async def validate_passport(
+            passport: str,
+    ) -> None:
+        if not passport.isnumeric():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid passport number characters",
+            )
+        if len(passport) != 10:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid passport number length",
+            )
+
     async def create(self, user_create: schemas.UC, safe: bool = False, request: Optional[Request] = None) -> models.UP:
         await self.validate_password(user_create.password, user_create)
         existing_user = await self.user_db.get_by_email(user_create.email)
@@ -50,6 +65,11 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         )
         password = user_dict.pop("password")
         user_dict["hashed_password"] = self.password_helper.hash(password)
+
+        passport = user_dict.pop("passport")
+        await self.validate_passport(passport)
+        user_dict["hashed_passport"] = self.password_helper.hash(passport)
+
         user_dict["role_id"] = 0
 
         created_user = await self.user_db.create(user_dict)

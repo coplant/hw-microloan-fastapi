@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from auth.router import router as router_auth
 from auth.router import users as router_users
 from loan.router import router as router_loan
+from verification.router import router as router_verification
 
 app = FastAPI(title="ЧВК")
 
@@ -41,6 +42,7 @@ async def main_exception_handler(request: Request, exc: HTTPException):
 app.include_router(router_auth)
 app.include_router(router_users)
 app.include_router(router_loan)
+app.include_router(router_verification)
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)

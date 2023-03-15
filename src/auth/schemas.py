@@ -21,6 +21,7 @@ class UserCreate(schemas.BaseUserCreate):
     middle_name: str
     last_name: str
     password: str
+    passport: str
 
 
 class UserUpdate(schemas.BaseUserUpdate):
@@ -28,3 +29,4 @@ class UserUpdate(schemas.BaseUserUpdate):
     middle_name: str
     last_name: str
     password: str
+    passport: str
