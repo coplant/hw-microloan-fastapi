@@ -7,8 +7,6 @@ class UserRead(schemas.BaseUser[int]):
     first_name: str
     middle_name: str
     last_name: str
-    email: str
-    username: str
     role_id: int
     is_active: bool = True
     is_superuser: bool = False
@@ -22,6 +20,11 @@ class UserCreate(schemas.BaseUserCreate):
     first_name: str
     middle_name: str
     last_name: str
-    username: str
-    email: str
+    password: str
+
+
+class UserUpdate(schemas.BaseUserUpdate):
+    first_name: str
+    middle_name: str
+    last_name: str
     password: str
