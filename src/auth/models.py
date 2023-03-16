@@ -4,8 +4,6 @@ from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey, JSON, Boo
 from sqlalchemy.orm import relationship
 
 from database import Base
-from loan.models import Loan
-from verification.models import Passport
 
 
 class Role(Base):

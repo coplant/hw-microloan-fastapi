@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi_users import schemas
 
 
@@ -21,7 +20,7 @@ class UserCreate(schemas.BaseUserCreate):
     middle_name: str
     last_name: str
     password: str
-    passport: str
+    number: str
 
 
 class UserUpdate(schemas.BaseUserUpdate):
@@ -29,4 +28,4 @@ class UserUpdate(schemas.BaseUserUpdate):
     middle_name: str
     last_name: str
     password: str
-    passport: str
+    number: str

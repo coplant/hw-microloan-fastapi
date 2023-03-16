@@ -12,7 +12,6 @@ from starlette.responses import JSONResponse
 from auth.config import current_user
 from auth.models import User
 from config import DEFAULT_CHUNK_SIZE
-# from config import DEFAULT_CHUNK_SIZE
 from database import get_async_session
 from verification.config import IMAGE_DIR
 
@@ -36,7 +35,8 @@ async def verify_user(
             if user.passport.number:
                 number = user.passport.number
         file.filename = f'{uuid.uuid4()}.jpg'
-        async with aiofiles.open(IMAGE_DIR / file.filename, "wb") as f:
+        file_path = IMAGE_DIR / file.filename
+        async with aiofiles.open(file_path, "wb") as f:
             while chunk := await file.read(DEFAULT_CHUNK_SIZE):
                 await f.write(chunk)
 
