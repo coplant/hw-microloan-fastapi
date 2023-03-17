@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -15,6 +17,7 @@ from database import get_async_session
 from loan.models import Loan
 from manager.schemas import LoansProcess, LoanHistory, History
 from manager.utils import Status
+from schemas import ResponseModel
 from verification.models import Passport
 from verification.utils import Roles
 
@@ -51,8 +54,7 @@ async def get_manager(user: User = Depends(current_user),
 async def get_history(user_id: int,
                       user: User = Depends(current_user),
                       fake_session: AsyncSession = Depends(get_fake_session),
-                      session: AsyncSession = Depends(get_async_session),
-                      ):
+                      session: AsyncSession = Depends(get_async_session)):
     if user.is_active and (user.role_id == Roles.manager.value or user.is_superuser):
         query = select(User).filter_by(id=user_id)
         result = await session.execute(query)
@@ -73,6 +75,33 @@ async def get_history(user_id: int,
                                                   amount=item.amount
                                                   ) for item in result]),
                 "detail": None}
+        return JSONResponse(status_code=status.HTTP_200_OK, content=data)
+    data = {"status": "error", "data": None, "detail": "Permission denied"}
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
+
+
+@router.post('/response/{user_id}', response_model=ResponseModel)
+async def response(user_id: int,
+                   decision: bool,
+                   user: User = Depends(current_user),
+                   session: AsyncSession = Depends(get_async_session)):
+    if user.is_active and (user.role_id == Roles.manager.value or user.is_superuser):
+        query = select(Loan).filter_by(user_id=user_id).filter_by(is_active=True). \
+            filter_by(status=Status.process.value[1])
+        result = await session.execute(query)
+        result = result.unique().scalars().one_or_none()
+        result.is_active = decision
+        if decision:
+            result.status = Status.approved.value[1]
+            period = datetime.utcnow() + timedelta(days=result.period)
+            result.end_date = period
+        else:
+            result.status = Status.rejected.value[1]
+            result.end_date = result.creation_date
+
+        session.add(result)
+        await session.commit()
+        data = {"status": "success", "data": decision, "detail": None}
         return JSONResponse(status_code=status.HTTP_200_OK, content=data)
     data = {"status": "error", "data": None, "detail": "Permission denied"}
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
