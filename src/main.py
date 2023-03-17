@@ -1,18 +1,23 @@
+import sys
+from pathlib import Path
 from urllib.request import Request
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
-from fastapi_users import InvalidPasswordException
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
+
+sys.path.append(str(Path(__file__).parents[1] / 'alembic_fake'))
+sys.path.append("..")
 
 from auth.router import router as router_auth
 from auth.router import users as router_users
 from loan.router import router as router_loan
 from verification.router import router as router_verification
 from operation.router import router as router_operator
+from manager.router import router as router_manager
 
 app = FastAPI(title="ЧВК")
 
@@ -46,7 +51,7 @@ app.include_router(router_users)
 app.include_router(router_loan)
 app.include_router(router_verification)
 app.include_router(router_operator)
-# app.include_router(router_verification)
+app.include_router(router_manager)
 
 origins = [
     "http://localhost:3000",
