@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 import fastapi_users.exceptions
 from fastapi import APIRouter, Depends, Path
@@ -13,10 +14,11 @@ from auth.config import current_user
 from auth.models import User
 from database import get_async_session
 from operation.schemas import OperatorData, OperatorListData, UserData, FileSchema
-from operation.utils import Roles, get_unverified_users, is_unverified
+from operation.utils import get_unverified_users, is_unverified
 from schemas import ResponseModel
 from verification.config import IMAGE_DIR
 from verification.models import Passport
+from verification.utils import Roles
 
 router = APIRouter(
     prefix="/operation",
@@ -66,11 +68,13 @@ async def get_photo(user: User = Depends(current_user),
         result = result.unique().scalars().one_or_none()
         photo = IMAGE_DIR / filename
         return FileResponse(photo, headers={"Content-Type": result}, media_type=result)
+    data = {"status": "error", "data": None, "detail": "Permission denied"}
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
 
 
 @router.get("/verify/{user_id}", response_model=ResponseModel)
 async def verify_by_id(user: User = Depends(current_user),
-                       user_id: int = Path(...),
+                       user_id: Union[int, None] = Path(...),
                        session: AsyncSession = Depends(get_async_session)):
     if user.is_active and (user.role_id == Roles.operator.value or user.is_superuser):
         stmt = select(User).filter_by(id=user_id)
@@ -83,7 +87,5 @@ async def verify_by_id(user: User = Depends(current_user),
                 await session.commit()
                 data = {"status": "success", "data": None, "detail": "User verified"}
                 return JSONResponse(status_code=status.HTTP_200_OK, content=data)
-            data = {"status": "error", "data": None, "detail": "Permission denied"}
-            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
-        data = {"status": "error", "data": None, "detail": "No user found"}
-        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=data)
+    data = {"status": "error", "data": None, "detail": "Permission denied"}
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)

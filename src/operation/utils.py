@@ -3,14 +3,6 @@ from enum import Enum
 from verification.models import Passport
 
 
-class Roles(Enum):
-    admin = 100
-    user = 0
-    operator = 1
-    manager = 2
-    accountant = 3
-
-
 async def get_unverified_users(items: list[Passport]):
     users = []
     for item in items:
