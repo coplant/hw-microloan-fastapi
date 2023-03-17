@@ -1,5 +1,3 @@
-from enum import unique
-
 from sqlalchemy import Column, Integer, String, LargeBinary, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
@@ -12,6 +10,5 @@ class Passport(Base):
     number = Column(String(120), unique=True, nullable=False)
     filename = Column(String)
     content_type = Column(String)
-    # data = Column(LargeBinary)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), unique=True)
     user = relationship("User", back_populates="passport", lazy=False)

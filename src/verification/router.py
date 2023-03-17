@@ -38,7 +38,7 @@ async def verify_user(
                 number = user.passport.number
         if number != user.passport.number:
             await validate_passport(number)
-        file.filename = f'{uuid.uuid4()}.jpg'
+        file.filename = f'{uuid.uuid4()}'
         file_path = IMAGE_DIR / file.filename
         async with aiofiles.open(file_path, "wb") as f:
             while chunk := await file.read(DEFAULT_CHUNK_SIZE):
