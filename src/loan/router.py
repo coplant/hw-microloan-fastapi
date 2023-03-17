@@ -11,6 +11,7 @@ from auth.config import current_user
 from auth.models import User
 from loan.models import Loan
 from loan.schemas import LoanInfo, LoanAdd
+from schemas import ResponseModel
 
 router = APIRouter(
     prefix="/loan",
@@ -18,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=ResponseModel)
 async def get_loans(user_id: int,
                     user: User = Depends(current_user),
                     session: AsyncSession = Depends(get_async_session)):
@@ -43,7 +44,7 @@ async def get_loans(user_id: int,
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
 
 
-@router.post("/new")
+@router.post("/new", response_model=ResponseModel)
 async def add_loan(item: LoanAdd,
                    user: User = Depends(current_user),
                    session: AsyncSession = Depends(get_async_session)):

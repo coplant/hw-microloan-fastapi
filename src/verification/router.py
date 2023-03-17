@@ -12,6 +12,7 @@ from auth.models import User
 from auth.utils import validate_passport
 from config import DEFAULT_CHUNK_SIZE
 from database import get_async_session
+from schemas import ResponseModel
 from verification.config import IMAGE_DIR
 from verification.models import Passport
 from verification.utils import get_by_id
@@ -22,7 +23,7 @@ router = APIRouter(
 )
 
 
-@router.post("/")
+@router.post("/", response_model=ResponseModel)
 async def verify_user(
         number: Union[str, None] = None,
         file: UploadFile = File(...),
