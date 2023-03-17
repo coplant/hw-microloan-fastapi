@@ -43,13 +43,6 @@ async def verify_user(
             while chunk := await file.read(DEFAULT_CHUNK_SIZE):
                 await f.write(chunk)
 
-        data = Passport(
-            number=number,
-            filename=file.filename,
-            content_type=file.content_type,
-            user_id=user.id,
-        )
-
         is_exists = await get_by_id(user.id)
         if is_exists:
             is_exists.number = number
@@ -58,6 +51,13 @@ async def verify_user(
             session.expunge_all()
             session.add(is_exists)
         else:
+            data = Passport(
+                number=number,
+                filename=file.filename,
+                content_type=file.content_type,
+                user_id=user.id,
+            )
+
             session.add(data)
         await session.commit()
 

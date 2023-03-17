@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-from starlette.responses import JSONResponse, RedirectResponse
+from starlette.responses import JSONResponse
 
 from database import get_async_session
 
@@ -56,6 +56,13 @@ async def add_loan(item: LoanAdd,
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
         else:
             if not user.is_verified:
-                return RedirectResponse('/verify')
+                data = {"status": "error", "data": None, "detail": "You are not verified"}
+                return JSONResponse(status_code=status.HTTP_307_TEMPORARY_REDIRECT, content=data)
             else:
-                stmt = Loan(period=item.period, amount=item.amount, user_id=user.id, )
+                stmt = Loan(period=item.period, amount=item.amount, user_id=user.id)
+                session.add(stmt)
+                await session.commit()
+                data = {"status": "success",
+                        "data": jsonable_encoder(LoanAdd(period=item.period, amount=item.amount)),
+                        "detail": "Loan request sent"}
+                return JSONResponse(status_code=status.HTTP_307_TEMPORARY_REDIRECT, content=data)
