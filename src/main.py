@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi_users import InvalidPasswordException
 from starlette import status
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from auth.router import router as router_auth
@@ -43,6 +44,19 @@ app.include_router(router_auth)
 app.include_router(router_users)
 app.include_router(router_loan)
 app.include_router(router_verification)
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
+                   "Authorization"],
+)
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)
