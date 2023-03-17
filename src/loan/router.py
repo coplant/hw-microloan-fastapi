@@ -56,7 +56,6 @@ async def add_loan(item: LoanAdd,
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
         else:
             if not user.is_verified:
-                print("user not verified")
                 return RedirectResponse('/verify')
             else:
                 stmt = Loan(period=item.period, amount=item.amount, user_id=user.id, )

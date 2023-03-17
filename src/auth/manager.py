@@ -6,7 +6,7 @@ from starlette import status
 
 from auth.models import User
 from auth.schemas import UserCreate
-from auth.utils import get_user_db
+from auth.utils import get_user_db, validate_passport
 
 from config import SECRET
 from database import get_async_session, async_session_maker
@@ -45,26 +45,6 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
                 detail=exc.reason,
             )
 
-    @staticmethod
-    async def validate_passport(
-            passport: str,
-    ) -> None:
-        if not passport.isnumeric():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid passport number characters",
-            )
-        if len(passport) != 10:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid passport number length",
-            )
-        if await get_by_number(passport):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This passport number is already in use",
-            )
-
     async def create(self, user_create: UserCreate, safe: bool = False, request: Optional[Request] = None) -> models.UP:
         await self.validate_password(user_create.password, user_create)
         existing_user = await self.user_db.get_by_email(user_create.email)
@@ -80,7 +60,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         user_dict["hashed_password"] = self.password_helper.hash(password)
         user_dict["role_id"] = 0
         passport = user_dict.pop("number")
-        await self.validate_passport(passport)
+        await validate_passport(passport)
         created_user = await self.user_db.create(user_dict)
         user_dict.update({"passport": passport})
         await self.on_after_register(created_user, request=request, data=user_dict)
