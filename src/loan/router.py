@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from typing import Union
+
+from fastapi import APIRouter, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,15 +16,17 @@ from loan.schemas import LoanInfo, LoanAdd
 from schemas import ResponseModel
 
 router = APIRouter(
-    prefix="/loan",
-    tags=["Loan"],
+    prefix="/loans",
+    tags=["Loans"],
 )
 
 
-@router.get("/{user_id}", response_model=ResponseModel)
-async def get_loans(user_id: int,
+@router.get("/", response_model=ResponseModel)
+async def get_loans(user_id: Union[int, None] = None,
                     user: User = Depends(current_user),
                     session: AsyncSession = Depends(get_async_session)):
+    if not user_id:
+        user_id = user.id
     if user.id == user_id or user.is_superuser:
         query = select(Loan).filter_by(user_id=user_id)
         result = await session.execute(query)
@@ -66,4 +70,4 @@ async def add_loan(item: LoanAdd,
                 data = {"status": "success",
                         "data": jsonable_encoder(LoanAdd(period=item.period, amount=item.amount)),
                         "detail": "Loan request sent"}
-                return JSONResponse(status_code=status.HTTP_307_TEMPORARY_REDIRECT, content=data)
+                return JSONResponse(status_code=status.HTTP_200_OK, content=data)

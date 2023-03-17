@@ -12,7 +12,7 @@ class Loan(Base):
     end_date = Column(TIMESTAMP, default=None)
     period = Column(Integer, nullable=False)
     amount = Column(Integer, nullable=False)
-    status = Column(String, default='На рассмотрении')
+    status = Column(String, default='В обработке')
     is_active = Column(Boolean, default=True)
     user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     user = relationship('User', back_populates='loan')
