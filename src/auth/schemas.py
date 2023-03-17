@@ -1,4 +1,8 @@
+from typing import List, Union
+
 from fastapi_users import schemas
+
+from loan.schemas import LoanInfo
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -28,4 +32,3 @@ class UserUpdate(schemas.BaseUserUpdate):
     middle_name: str
     last_name: str
     password: str
-    number: str
