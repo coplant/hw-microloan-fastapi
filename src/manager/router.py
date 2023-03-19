@@ -90,6 +90,9 @@ async def response(user_id: int,
             filter_by(status=Status.process.value[1])
         result = await session.execute(query)
         result = result.unique().scalars().one_or_none()
+        if not result:
+            data = {"status": "error", "data": None, "detail": "User not found"}
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=data)
         result.is_active = decision
         if decision:
             result.status = Status.approved.value[1]
@@ -98,7 +101,6 @@ async def response(user_id: int,
         else:
             result.status = Status.rejected.value[1]
             result.end_date = result.creation_date
-
         session.add(result)
         await session.commit()
         data = {"status": "success", "data": decision, "detail": None}
