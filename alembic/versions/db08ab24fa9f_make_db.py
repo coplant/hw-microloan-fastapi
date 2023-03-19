@@ -23,6 +23,17 @@ def upgrade() -> None:
                     sa.Column('permissions', sa.JSON(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
+
+    roles_table = sa.Table('role', sa.MetaData(), autoload_with=op.get_bind())
+
+    op.bulk_insert(roles_table, [
+        {'id': 100, 'name': 'admin'},
+        {'id': 0, 'name': 'user'},
+        {'id': 1, 'name': 'operator'},
+        {'id': 2, 'name': 'manager'},
+        {'id': 3, 'name': 'accountant'}
+    ])
+
     op.create_table('user',
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('last_name', sa.String(), nullable=False),
