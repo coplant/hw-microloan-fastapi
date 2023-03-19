@@ -38,3 +38,5 @@ services:
       - db
       - fake-db
     command: [ "/code/docker/app.sh" ]
+    restart: on-failure
+
