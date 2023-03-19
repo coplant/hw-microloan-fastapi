@@ -54,7 +54,6 @@ app.include_router(router_operator)
 app.include_router(router_manager)
 
 origins = [
-    "*",
     "http://localhost:3000",
 ]
 

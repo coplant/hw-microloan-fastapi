@@ -7,8 +7,7 @@ from auth.manager import get_user_manager
 from config import SECRET
 
 # todo: set cookie security, same-site
-cookie_transport = CookieTransport(cookie_name="session", cookie_max_age=3600, cookie_secure=False,
-                                   cookie_samesite="none")
+cookie_transport = CookieTransport(cookie_name="session", cookie_max_age=3600, cookie_secure=True)
 
 
 def get_jwt_strategy() -> JWTStrategy:
