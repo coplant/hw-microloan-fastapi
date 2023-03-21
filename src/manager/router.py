@@ -1,11 +1,8 @@
 from datetime import datetime, timedelta
-from typing import List
-
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -16,13 +13,12 @@ from auth.models import User
 from database import get_async_session
 from loan.models import Loan
 from manager.schemas import LoansProcess, LoanHistory, History
-from manager.utils import Status
 from schemas import ResponseModel
+from utils import Roles, Status
 from verification.models import Passport
-from verification.utils import Roles
 
 router = APIRouter(
-    prefix="/managment",
+    prefix="/management",
     tags=["Manager"],
 )
 
@@ -31,7 +27,7 @@ router = APIRouter(
 async def get_manager(user: User = Depends(current_user),
                       session: AsyncSession = Depends(get_async_session)):
     if user.is_active and (user.role_id == Roles.manager.value or user.is_superuser):
-        query = select(Loan).filter_by(is_active=True).filter_by(status=Status.process.value[1])
+        query = select(Loan).filter_by(is_active=True).filter_by(status=Status.consideration.value[1])
         result = await session.execute(query)
         result = result.scalars().all()
         data = {"status": "success",
@@ -87,7 +83,7 @@ async def response(user_id: int,
                    session: AsyncSession = Depends(get_async_session)):
     if user.is_active and (user.role_id == Roles.manager.value or user.is_superuser):
         query = select(Loan).filter_by(user_id=user_id).filter_by(is_active=True). \
-            filter_by(status=Status.process.value[1])
+            filter_by(status=Status.consideration.value[1])
         result = await session.execute(query)
         result = result.unique().scalars().one_or_none()
         if not result:
@@ -95,7 +91,7 @@ async def response(user_id: int,
             return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=data)
         result.is_active = decision
         if decision:
-            result.status = Status.approved.value[1]
+            result.status = Status.process.value[1]
             period = datetime.utcnow() + timedelta(days=result.period)
             result.end_date = period
         else:

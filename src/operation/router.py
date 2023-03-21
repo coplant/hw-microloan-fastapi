@@ -16,9 +16,9 @@ from database import get_async_session
 from operation.schemas import OperatorData, OperatorListData, UserData, FileSchema
 from operation.utils import get_unverified_users, is_unverified
 from schemas import ResponseModel
+from utils import Roles
 from verification.config import IMAGE_DIR
 from verification.models import Passport
-from verification.utils import Roles
 
 router = APIRouter(
     prefix="/operation",

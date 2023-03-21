@@ -22,6 +22,9 @@ class OperatorData(BaseModel):
     number: str
     user: UserData
 
+    class Config:
+        orm_mode = True
+
 
 class OperatorListData(BaseModel):
     user_info: List[OperatorData]
