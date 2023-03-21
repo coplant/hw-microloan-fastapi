@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.responses import JSONResponse
 
+from accountant.models import Balance
 from accountant.schemas import Accountant, AccountantResponse
 from auth.config import current_user
 from auth.models import User
@@ -55,4 +57,28 @@ async def get_accountant(user: User = Depends(current_user),
     data = {"status": "error", "data": None, "detail": "Permission denied"}
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
 
-# @router.get("/pay/{user_id}")
+
+@router.post("/pay/{user_id}")
+async def pay_loan(user_id: int,
+                   user: User = Depends(current_user),
+                   session: AsyncSession = Depends(get_async_session)):
+    if user.is_active and (user.role_id == Roles.accountant.value or user.is_superuser):
+        query = select(Loan).filter_by(user_id=user_id).filter_by(is_active=True).filter_by(
+            status=Status.process.value[1])
+        result = await session.execute(query)
+        result = result.unique().scalar_one_or_none()
+        if not result:
+            data = {"status": "error", "data": None, "detail": "Loan not found"}
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=data)
+        if result.status == Status.approved.value[1]:
+            data = {"status": "error", "data": None, "detail": "Loan already paid"}
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=data)
+        stmt = insert(Balance).values(amount=-result.amount, user_id=user_id, loan_id=result.id)
+        await session.execute(stmt)
+        result.status = Status.approved.value[1]
+        session.add(result)
+        await session.commit()
+        data = {"status": "success", "data": None, "detail": "Loan approved"}
+        return JSONResponse(status_code=status.HTTP_200_OK, content=data)
+    data = {"status": "error", "data": None, "detail": "Permission denied"}
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)

@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt
 
 
 class LoanAdd(BaseModel):
-    period: int
-    amount: int
+    period: PositiveInt
+    amount: PositiveInt
 
 
 class LoanInfo(LoanAdd):
