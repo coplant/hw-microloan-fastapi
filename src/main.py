@@ -18,6 +18,7 @@ from loan.router import router as router_loan
 from verification.router import router as router_verification
 from operation.router import router as router_operator
 from manager.router import router as router_manager
+from accountant.router import router as router_accountant
 
 app = FastAPI(title="ЧВК")
 
@@ -52,6 +53,7 @@ app.include_router(router_loan)
 app.include_router(router_verification)
 app.include_router(router_operator)
 app.include_router(router_manager)
+app.include_router(router_accountant)
 
 origins = [
     "http://localhost:3000",
