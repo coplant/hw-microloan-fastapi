@@ -13,7 +13,7 @@ from starlette.responses import JSONResponse, FileResponse
 from auth.config import current_user
 from auth.models import User
 from database import get_async_session
-from operation.schemas import OperatorData, OperatorListData, UserData, FileSchema
+from operation.schemas import OperatorData, UserData, FileSchema, GetOperatorData
 from operation.utils import get_unverified_users, is_unverified
 from schemas import ResponseModel
 from utils import Roles
@@ -26,7 +26,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=ResponseModel)
+@router.get("/", response_model=GetOperatorData)
 async def get_operator(user: User = Depends(current_user),
                        session: AsyncSession = Depends(get_async_session)):
     if user.is_active and (user.role_id == Roles.operator.value or user.is_superuser):
@@ -34,25 +34,21 @@ async def get_operator(user: User = Depends(current_user),
         result = await session.execute(query)
         result = result.unique().scalars().all()
         users = await get_unverified_users(list[Passport](result))
-        data = {"status": "success",
-                "data": jsonable_encoder(
-                    OperatorListData(
-                        user_info=[OperatorData(
-                            passport_id=user.id,
-                            filename=user.filename,
-                            number=user.number,
-                            user=UserData(
-                                user_id=user.user.id,
-                                first_name=user.user.first_name,
-                                middle_name=user.user.middle_name,
-                                last_name=user.user.last_name,
-                                email=user.user.email,
-                                registered_at=user.user.registered_at,
-                            )
-                        ) for user in users]
-                    )
-                ),
-                "detail": None}
+        info = []
+        for item in users:
+            info.append(OperatorData(
+                passport_id=item.id,
+                filename=item.filename,
+                number=item.number,
+                user=UserData(
+                    user_id=item.user.id,
+                    first_name=item.user.first_name,
+                    middle_name=item.user.middle_name,
+                    last_name=item.user.last_name,
+                    email=item.user.email,
+                    registered_at=item.user.registered_at,
+                )))
+        data = {"status": "success", "data": jsonable_encoder(info), "detail": None}
         return JSONResponse(status_code=status.HTTP_200_OK, content=data)
     data = {"status": "error", "data": None, "detail": "Permission denied"}
     return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)

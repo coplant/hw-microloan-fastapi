@@ -6,6 +6,8 @@ from xml.dom.domreg import registered
 from fastapi import File, UploadFile
 from pydantic import BaseModel
 
+from schemas import ResponseModel
+
 
 class UserData(BaseModel):
     user_id: int
@@ -26,9 +28,13 @@ class OperatorData(BaseModel):
         orm_mode = True
 
 
-class OperatorListData(BaseModel):
-    user_info: List[OperatorData]
+# class OperatorListData(BaseModel):
+#     user_info: List[OperatorData]
 
 
 class FileSchema(BaseModel):
     file: UploadFile
+
+
+class GetOperatorData(ResponseModel):
+    data: List[OperatorData]
