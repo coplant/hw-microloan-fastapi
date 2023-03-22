@@ -1,8 +1,5 @@
-from typing import List, Union
-
+from typing import Union
 from fastapi_users import schemas
-
-from loan.schemas import LoanInfo
 from schemas import PassportRead
 
 
