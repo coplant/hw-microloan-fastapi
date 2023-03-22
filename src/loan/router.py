@@ -12,7 +12,7 @@ from database import get_async_session
 from auth.config import current_user
 from auth.models import User
 from loan.models import Loan
-from loan.schemas import LoanInfo, LoanAdd
+from loan.schemas import LoanInfo, LoanAdd, GetLoanInfo
 from schemas import ResponseModel
 
 router = APIRouter(
@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=ResponseModel)
+@router.get("/", response_model=GetLoanInfo)
 async def get_loans(user_id: Union[int, None] = None,
                     user: User = Depends(current_user),
                     session: AsyncSession = Depends(get_async_session)):

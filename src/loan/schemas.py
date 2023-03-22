@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, List
 
 from pydantic import BaseModel, PositiveInt
+
+from schemas import ResponseModel
 
 
 class LoanAdd(BaseModel):
@@ -15,3 +17,7 @@ class LoanInfo(LoanAdd):
     is_active: bool
     creation_date: datetime
     end_date: Union[datetime, None]
+
+
+class GetLoanInfo(ResponseModel):
+    data: List[LoanInfo]
