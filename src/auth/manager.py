@@ -1,7 +1,6 @@
 from typing import Optional, Union
 from fastapi import Depends, Request, HTTPException
 from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, schemas, InvalidPasswordException
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from auth.models import User
@@ -9,9 +8,8 @@ from auth.schemas import UserCreate
 from auth.utils import get_user_db, validate_passport
 
 from config import SECRET
-from database import get_async_session, async_session_maker
+from database import async_session_maker
 from verification.models import Passport
-from verification.utils import get_by_number
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
@@ -24,6 +22,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             passport = Passport(number=passport_raw, user_id=user.id)
             session.add(passport)
             await session.commit()
+            return passport
 
     async def validate_password(
             self,
@@ -63,7 +62,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         await validate_passport(passport)
         created_user = await self.user_db.create(user_dict)
         user_dict.update({"passport": passport})
-        await self.on_after_register(created_user, request=request, data=user_dict)
+        passport = await self.on_after_register(created_user, request=request, data=user_dict)
+        created_user.passport = passport
         return created_user
 
 
