@@ -44,7 +44,7 @@ async def get_loans(user_id: Union[int, None] = None,
         data = {"status": "success", "data": jsonable_encoder(info), "detail": None}
         return JSONResponse(status_code=status.HTTP_200_OK, content=data)
     else:
-        data = {"status": "error", "data": None, "detail": "Forbidden"}
+        data = {"status": "error", "data": None, "detail": "Permission denied"}
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
 
 
