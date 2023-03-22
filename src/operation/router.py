@@ -1,7 +1,6 @@
 import os
 from typing import Union
 
-import fastapi_users.exceptions
 from fastapi import APIRouter, Depends, Path
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
@@ -13,7 +12,7 @@ from starlette.responses import JSONResponse, FileResponse
 from auth.config import current_user
 from auth.models import User
 from database import get_async_session
-from operation.schemas import OperatorData, UserData, FileSchema, GetOperatorData
+from operation.schemas import PassportData, UserData, GetOperatorData
 from operation.utils import get_unverified_users, is_unverified
 from schemas import ResponseModel
 from utils import Roles
@@ -36,7 +35,7 @@ async def get_operator(user: User = Depends(current_user),
         users = await get_unverified_users(list[Passport](result))
         info = []
         for item in users:
-            info.append(OperatorData(
+            info.append(PassportData(
                 passport_id=item.id,
                 filename=item.filename,
                 number=item.number,

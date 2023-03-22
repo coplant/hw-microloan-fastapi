@@ -13,7 +13,6 @@ from auth.models import User
 from auth.schemas import UserRead
 from database import get_async_session
 from loan.models import Loan
-from operation.schemas import OperatorData
 from schemas import PassportRead
 from utils import Roles, Status
 

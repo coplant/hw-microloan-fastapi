@@ -1,9 +1,6 @@
 from datetime import datetime
-from fileinput import filename
 from typing import List
-from xml.dom.domreg import registered
-
-from fastapi import File, UploadFile
+from fastapi import UploadFile
 from pydantic import BaseModel
 
 from schemas import ResponseModel
@@ -18,18 +15,11 @@ class UserData(BaseModel):
     registered_at: datetime
 
 
-class OperatorData(BaseModel):
+class PassportData(BaseModel):
     passport_id: int
     filename: str
-    number: str
     user: UserData
-
-    class Config:
-        orm_mode = True
-
-
-# class OperatorListData(BaseModel):
-#     user_info: List[OperatorData]
+    number: str
 
 
 class FileSchema(BaseModel):
@@ -37,4 +27,4 @@ class FileSchema(BaseModel):
 
 
 class GetOperatorData(ResponseModel):
-    data: List[OperatorData]
+    data: List[PassportData]

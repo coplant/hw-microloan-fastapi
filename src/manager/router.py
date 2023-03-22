@@ -15,7 +15,6 @@ from loan.models import Loan
 from manager.schemas import LoansProcess, LoanHistory, History
 from schemas import ResponseModel
 from utils import Roles, Status
-from verification.models import Passport
 
 router = APIRouter(
     prefix="/management",
