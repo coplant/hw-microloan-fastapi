@@ -1,11 +1,7 @@
-from datetime import datetime
 from typing import List
-
-from pydantic import BaseModel
-
+from schemas import ResponseModel
 from auth.schemas import UserRead
 from manager.schemas import Loan
-from schemas import ResponseModel
 
 
 class Accountant(Loan):

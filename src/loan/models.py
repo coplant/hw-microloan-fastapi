@@ -1,7 +1,6 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, TIMESTAMP, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-
+from sqlalchemy import Column, Integer, TIMESTAMP, String, Boolean, ForeignKey
 from database import Base
 
 
