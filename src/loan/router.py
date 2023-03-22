@@ -30,7 +30,7 @@ async def get_loans(user_id: Union[int, None] = None,
     if user.id == user_id or user.is_superuser:
         query = select(Loan).filter_by(user_id=user_id)
         result = await session.execute(query)
-        result = result.scalars().all()
+        result = result.unique().scalars().all()
         info = []
         for item in result:
             info.append(LoanInfo(id=item.id,
