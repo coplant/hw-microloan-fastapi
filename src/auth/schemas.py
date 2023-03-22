@@ -30,6 +30,6 @@ class UserCreate(schemas.BaseUserCreate):
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    first_name: str
-    middle_name: str
-    last_name: str
+    first_name: Union[str, None]
+    middle_name: Union[str, None]
+    last_name: Union[str, None]
