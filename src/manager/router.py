@@ -28,7 +28,7 @@ async def get_manager(user: User = Depends(current_user),
     if user.is_active and (user.role_id == Roles.manager.value or user.is_superuser):
         query = select(Loan).filter_by(is_active=True).filter_by(status=Status.consideration.value[1])
         result = await session.execute(query)
-        result = result.scalars().all()
+        result = result.unique().scalars().all()
         data = {"status": "success",
                 "data": jsonable_encoder([Loan(id=item.id,
                                                user_id=item.user_id,
@@ -58,7 +58,7 @@ async def get_history(user_id: int,
         # checking credit history from fake database
         query = select(FakeUser).filter_by(passport=result.passport.number)
         result = await fake_session.execute(query)
-        result = result.scalars().all()
+        result = result.unique().scalars().all()
         data = {"status": "success",
                 "data": jsonable_encoder([History(id=user_id,
                                                   first_name=item.first_name,
