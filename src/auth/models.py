@@ -31,4 +31,4 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     # role = relationship("Role", back_populates="user", foreign_keys="User.role_id", passive_deletes=True)
     # passport_id = Column(Integer, ForeignKey("passport.id"))
     passport = relationship("Passport", back_populates="user", lazy=False, uselist=False, passive_deletes=True)
-    loan = relationship("Loan", back_populates="user", lazy=False, passive_deletes=True)
+    loan = relationship("Loan", back_populates="user", cascade="delete", lazy=False, passive_deletes=True)
