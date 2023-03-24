@@ -10,26 +10,29 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - .env-non-dev
+      - backend/.env-non-dev
+    networks:
+      - my-network
 
   fake-db:
     image: postgres
     container_name: fake-database
-    command:
-      -p 5431
+    command: -p 5431
     expose:
       - 5431
     ports:
       - "5431:5431"
     env_file:
-      - .env-fake-non-dev
+      - backend/.env-fake-non-dev
+    networks:
+      - my-network
 
-  app:
+  backend:
     build:
-      context: .
+      context: backend
     env_file:
-      - .env-non-dev
-    container_name: application
+      - backend/.env-non-dev
+    container_name: backend
     ports:
       - "8000:8000"
     expose:
@@ -37,6 +40,36 @@ services:
     depends_on:
       - db
       - fake-db
-    command: [ "/code/docker/app.sh" ]
+    command: [ "/code/backend/docker/app.sh" ]
     restart: on-failure
+    networks:
+      - my-network
 
+  frontend:
+    build:
+      context: frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: on-failure
+    networks:
+      - my-network
+
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
