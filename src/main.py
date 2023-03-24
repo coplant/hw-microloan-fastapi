@@ -3,7 +3,7 @@ from pathlib import Path
 from urllib.request import Request
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.exceptions import RequestValidationError, HTTPException
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -21,6 +21,7 @@ from manager.router import router as router_manager
 from accountant.router import router as router_accountant
 
 app = FastAPI(title="ЧВК")
+router = APIRouter(prefix="/api")
 
 
 @app.exception_handler(RequestValidationError)
@@ -47,16 +48,19 @@ async def main_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-app.include_router(router_auth)
-app.include_router(router_users)
-app.include_router(router_loan)
-app.include_router(router_verification)
-app.include_router(router_operator)
-app.include_router(router_manager)
-app.include_router(router_accountant)
+router.include_router(router_auth)
+router.include_router(router_users)
+router.include_router(router_loan)
+router.include_router(router_verification)
+router.include_router(router_operator)
+router.include_router(router_manager)
+router.include_router(router_accountant)
+app.include_router(router)
 
 origins = [
     "http://localhost:3000",
+    "https://coplant.duckdns.org",
+    "localhost"
 ]
 
 app.add_middleware(
