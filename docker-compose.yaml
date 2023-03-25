@@ -37,6 +37,8 @@ services:
       - "8000:8000"
     expose:
       - 8000
+    volumes:
+      - ./backend/data/verification:/code/backend/data/verification
     depends_on:
       - db
       - fake-db
